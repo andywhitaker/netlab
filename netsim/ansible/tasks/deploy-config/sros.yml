@@ -9,10 +9,10 @@
     d: "{{ cfg.delete if 'delete' in cfg and cfg.delete is not string else [] }}"
     u: "{{ cfg.updates if 'updates' in cfg and cfg.updates is not string else [] }}"
     r: "{{ cfg.replace if 'replace' in cfg and cfg.replace is not string else [] }}"
-    ansible_connection: nokia.grpc.gnmi
+    ansible_connection: nokia.openconfig.gnmi
     ansible_gnmi_encoding: JSON
     ansible_port: "{{ sros_grpc_port }}"
-  nokia.grpc.gnmi_config:
+  nokia.openconfig.gnmi_config:
     # prefix: configure
     delete: "{{ d }}"
     replace: "{{ r }}"

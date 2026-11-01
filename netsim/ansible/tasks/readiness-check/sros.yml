@@ -1,7 +1,7 @@
 - name: Check that required plugin exists, use 'netlab install grpc' to install it
   vars:
-    ansible_connection: nokia.grpc.gnmi
-  nokia.grpc.gnmi_config:
+    ansible_connection: nokia.openconfig.gnmi
+  nokia.openconfig.gnmi_config:
     prefix: test-plugin
 
 - name: Wait up to 180s for gNMI(TCP {{sros_grpc_port}}) to be ready on {{ ansible_host }}
