@@ -15,7 +15,12 @@
     ansible_port: "{{ sros_grpc_port }}"
   nokia.openconfig.gnmi_capabilities:
   register: gnmi_caps
-  until: gnmi_caps is succeeded or 'Failed to import' in (gnmi_caps.msg | default(''))
+  until: >-
+    gnmi_caps is succeeded or
+    'cannot be imported' in (gnmi_caps.msg | default('')) or
+    'requires grpcio' in (gnmi_caps.msg | default('')) or
+    'protobuf modules' in (gnmi_caps.msg | default('')) or
+    'Failed to import' in (gnmi_caps.msg | default(''))
   retries: 5
   delay: 3
   failed_when: gnmi_caps is failed

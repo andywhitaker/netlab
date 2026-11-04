@@ -1,17 +1,20 @@
 ---
 - name: Generate gNMI YAML configuration
-  set_fact: yaml_config={{ lookup('template',config_template) }}
+  set_fact:
+    yaml_config: "{{ lookup('template',config_template) }}"
 
 - name: Update {{ netsim_action }} node configuration from gNMI template {{ config_template  }}
   when: d|default([],True) != [] or u|default([],True) != [] or r|default([],True) != []
   vars:
-    cfg: "{{ yaml_config | from_yaml }}"
-    d: "{{ cfg.delete if 'delete' in cfg and cfg.delete is not string else [] }}"
-    raw_u: "{{ cfg.updates if 'updates' in cfg and cfg.updates is not string else [] }}"
-    raw_r: "{{ cfg.replace if 'replace' in cfg and cfg.replace is not string else [] }}"
+    raw_cfg: "{{ yaml_config | from_yaml }}"
+    cfg: "{{ raw_cfg if raw_cfg is mapping else {} }}"
+    raw_d: "{{ cfg['delete'] if 'delete' in cfg else cfg.get('deletes', []) }}"
+    raw_u: "{{ cfg['updates'] if 'updates' in cfg else cfg.get('update', []) }}"
+    raw_r: "{{ cfg['replace'] if 'replace' in cfg else cfg.get('replaces', []) }}"
+    d: "{{ raw_d if raw_d is sequence and raw_d is not string else [] }}"
     u: >-
       {%- set out = [] -%}
-      {%- for item in raw_u -%}
+      {%- for item in (raw_u if raw_u is sequence and raw_u is not string else []) -%}
       {%-   if item is mapping and 'val' in item and 'value' not in item -%}
       {%-     set clean = {} -%}
       {%-     for k, v in item.items() if k != 'val' -%}
@@ -26,7 +29,7 @@
       {{ out }}
     r: >-
       {%- set out = [] -%}
-      {%- for item in raw_r -%}
+      {%- for item in (raw_r if raw_r is sequence and raw_r is not string else []) -%}
       {%-   if item is mapping and 'val' in item and 'value' not in item -%}
       {%-     set clean = {} -%}
       {%-     for k, v in item.items() if k != 'val' -%}
@@ -43,7 +46,8 @@
     ansible_gnmi_encoding: JSON
     ansible_port: "{{ sros_grpc_port }}"
   nokia.openconfig.gnmi_set:
-    # prefix: configure
+    prefix: "{{ cfg['prefix'] if 'prefix' in cfg and cfg['prefix'] is string else omit }}"
+    origin: "{{ cfg['origin'] if 'origin' in cfg and cfg['origin'] is string else omit }}"
     delete: "{{ d }}"
     replace: "{{ r }}"
     update: "{{ u }}"
