@@ -702,7 +702,7 @@ Other caveats you might encounter:
 
 Other caveats (shared with Nokia SR-SIM):
 
-* We use the `nokia.openconfig` Ansible collection to configure SR-OS via gNMI. Because the version on Ansible Galaxy (`1.1.2`) does not include the `gnmi_get` module or Python 3.12+/Protobuf 4+ compatibility fixes, it must be built and installed from the [openconfig-ansible-integration GitHub repository](https://github.com/nokia-steward/openconfig-ansible-integration). Use the **netlab install grpc** command to build and install the `nokia.openconfig` collection and prerequisite Python gRPC modules.
+* We use the `nokia.openconfig` Ansible Galaxy collection (`>= 2.0.0`) to configure SR-OS via gNMI (`nokia.openconfig.grpc`). Use the **netlab install grpc** command to install the `nokia.openconfig` collection and prerequisite Python gRPC modules (`grpcio` and `protobuf`).
 * We implemented inter-VRF route leaking only for MPLS/VPN deployments.
 * The SR OS configuration templates do not support additional routing policies on routing protocol route imports
 * An SR OS interface cannot use an unnumbered IPv4 address in combination with IPv6 GUA

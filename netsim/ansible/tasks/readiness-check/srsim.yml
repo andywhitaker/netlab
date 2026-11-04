@@ -4,13 +4,13 @@
 
 - vars:
     hw_config: "{{ lookup('template','srsim-hardware.j2')|from_yaml }}"
-    ansible_connection: nokia.openconfig.gnmi
+    ansible_connection: nokia.openconfig.grpc
     ansible_gnmi_encoding: JSON
     ansible_port: "{{ sros_grpc_port }}"
   tags: [ print_action, always ]
   block:
   - name: Update SR-SIM hardware configuration
-    nokia.openconfig.gnmi_config:
+    nokia.openconfig.gnmi_set:
       update: "{{ hw_config.updates }}"
   - name: Get port {{ netlab_srsim_first_port }} status
     nokia.openconfig.gnmi_get:
