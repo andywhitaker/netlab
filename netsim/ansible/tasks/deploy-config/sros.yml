@@ -16,7 +16,7 @@
     ansible_port: "{{ sros_grpc_port }}"
   nokia.openconfig.gnmi_set:
     prefix: "{{ cfg.get('prefix') | default(omit, true) }}"
-    origin: "{{ cfg.get('origin') | default(omit, true) }}"
+    origin: "{{ cfg.get('origin') if cfg.get('origin') is not none else omit }}"
     delete: "{{ d }}"
     replace: "{{ r }}"
     update: "{{ u }}"

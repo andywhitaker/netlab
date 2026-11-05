@@ -10,7 +10,7 @@
   tags: [ print_action, always ]
   block:
   - name: Update SR-SIM hardware configuration
-    when: netlab_srsim_hw | default([]) | length > 0
+    when: netlab_srsim_hw | default([], true) | length > 0
     nokia.openconfig.gnmi_set:
       update: "{{ hw_config['updates'] }}"
   - name: Get port {{ netlab_srsim_first_port }} status
