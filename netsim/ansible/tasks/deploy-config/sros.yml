@@ -4,50 +4,19 @@
     yaml_config: "{{ lookup('template',config_template) }}"
 
 - name: Update {{ netsim_action }} node configuration from gNMI template {{ config_template  }}
-  when: d|default([],True) != [] or u|default([],True) != [] or r|default([],True) != []
+  when: d != [] or u != [] or r != []
   vars:
     raw_cfg: "{{ yaml_config | from_yaml }}"
     cfg: "{{ raw_cfg if raw_cfg is mapping else {} }}"
-    raw_d: "{{ cfg['delete'] if 'delete' in cfg else cfg.get('deletes', []) }}"
-    raw_u: "{{ cfg['updates'] if 'updates' in cfg else cfg.get('update', []) }}"
-    raw_r: "{{ cfg['replace'] if 'replace' in cfg else cfg.get('replaces', []) }}"
-    d: "{{ raw_d if raw_d is sequence and raw_d is not string else [] }}"
-    u: >-
-      {%- set out = [] -%}
-      {%- for item in (raw_u if raw_u is sequence and raw_u is not string else []) -%}
-      {%-   if item is mapping and 'val' in item and 'value' not in item -%}
-      {%-     set clean = {} -%}
-      {%-     for k, v in item.items() if k != 'val' -%}
-      {%-       set _ = clean.update({k: v}) -%}
-      {%-     endfor -%}
-      {%-     set _ = clean.update({'value': item['val']}) -%}
-      {%-     set _ = out.append(clean) -%}
-      {%-   else -%}
-      {%-     set _ = out.append(item) -%}
-      {%-   endif -%}
-      {%- endfor -%}
-      {{ out }}
-    r: >-
-      {%- set out = [] -%}
-      {%- for item in (raw_r if raw_r is sequence and raw_r is not string else []) -%}
-      {%-   if item is mapping and 'val' in item and 'value' not in item -%}
-      {%-     set clean = {} -%}
-      {%-     for k, v in item.items() if k != 'val' -%}
-      {%-       set _ = clean.update({k: v}) -%}
-      {%-     endfor -%}
-      {%-     set _ = clean.update({'value': item['val']}) -%}
-      {%-     set _ = out.append(clean) -%}
-      {%-   else -%}
-      {%-     set _ = out.append(item) -%}
-      {%-   endif -%}
-      {%- endfor -%}
-      {{ out }}
+    d: "{{ (cfg.get('delete') or cfg.get('deletes')) | default([], true) }}"
+    u: "{{ (cfg.get('updates') or cfg.get('update')) | default([], true) }}"
+    r: "{{ (cfg.get('replace') or cfg.get('replaces')) | default([], true) }}"
     ansible_connection: nokia.openconfig.grpc
     ansible_gnmi_encoding: JSON
     ansible_port: "{{ sros_grpc_port }}"
   nokia.openconfig.gnmi_set:
-    prefix: "{{ cfg['prefix'] if 'prefix' in cfg and cfg['prefix'] is string else omit }}"
-    origin: "{{ cfg['origin'] if 'origin' in cfg and cfg['origin'] is string else omit }}"
+    prefix: "{{ cfg.get('prefix') | default(omit, true) }}"
+    origin: "{{ cfg.get('origin') | default(omit, true) }}"
     delete: "{{ d }}"
     replace: "{{ r }}"
     update: "{{ u }}"

@@ -21,6 +21,6 @@
       - port[port-id={{ netlab_srsim_first_port }}]
     register: result
     until: >-
-      'ghost' not in result.output
+      result is succeeded and 'ghost' not in result.output
     retries: 10
     delay: 3
